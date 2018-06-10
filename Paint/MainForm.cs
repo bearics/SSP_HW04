@@ -14,12 +14,20 @@ namespace Paint
 {
     public partial class MainForm : Form
     {
-        List<PaintForm> child = new List<PaintForm>();
+        List<PaintForm> mChild = new List<PaintForm>();
+        public Tools mTools = new Tools();
 
         public MainForm()
         {
             InitializeComponent();
+            this.DoubleBuffered = true;
+
+            this.SetStyle(ControlStyles.DoubleBuffer, true);
+            this.SetStyle(ControlStyles.UserPaint, true);
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+            this.UpdateStyles();
         }
+
 
         private void tsmiNew_Click(object sender, EventArgs e)
         {
@@ -41,8 +49,8 @@ namespace Paint
 
         private void newPaint(string imgPath)
         {
-            child.Add(new PaintForm());
-            PaintForm c = child[child.Count - 1];
+            mChild.Add(new PaintForm());
+            PaintForm c = mChild[mChild.Count - 1];
             c.MdiParent = this;
             c.mImgPath = imgPath;
             if (c.mImgPath == null)
@@ -73,13 +81,94 @@ namespace Paint
 
             Form child = this.ActiveMdiChild;
                         
-            ((PaintForm)child).saveImg();
+            ((PaintForm)child).SaveImg();
+            
         }
 
         private void tsbColor_Click(object sender, EventArgs e)
         {
             if (cldPaintColor.ShowDialog() == DialogResult.OK)
+            {
                 tsbColor.BackColor = cldPaintColor.Color;
+                mTools.mColor = cldPaintColor.Color;
+            }
+        }
+
+
+        private void tsbPencil_Click(object sender, EventArgs e)
+        {
+            mTools.mType = ToolsType.Pen;
+            UncheckedAll(sender);
+        }
+
+        private void tsbPaint_Click(object sender, EventArgs e)
+        {
+            mTools.mType = ToolsType.Brush;
+            UncheckedAll(sender);
+        }
+
+        private void tsbLine_Click(object sender, EventArgs e)
+        {
+            mTools.mType = ToolsType.Line;
+            UncheckedAll(sender);
+        }
+
+        private void tsbSquare_Click(object sender, EventArgs e)
+        {
+            mTools.mType = ToolsType.Square;
+            UncheckedAll(sender);
+        }
+
+        private void tsbCircle_Click(object sender, EventArgs e)
+        {
+            mTools.mType = ToolsType.Circle;
+            UncheckedAll(sender);
+        }
+
+        private void tsbThick_Click(object sender, EventArgs e)
+        {
+            pnlThick.Visible = true;
+        }
+
+        private void tsbFill_Click(object sender, EventArgs e)
+        {
+            pnlFill.Visible = true;
+        }
+
+        private void btnThick_Click(object sender, EventArgs e)
+        {
+            mTools.mThick = Convert.ToInt32(((Button)sender).Text);
+            pnlThick.Visible = false;
+        }
+
+        private void btnNotFill_Click(object sender, EventArgs e)
+        {
+            mTools.mIsFill = false;
+            pnlFill.Visible = false;
+        }
+
+        private void btnFillColor_Click(object sender, EventArgs e)
+        {
+            mTools.mIsFill = true;
+            pnlFill.Visible = false;
+        }
+        
+        private void UncheckedAll( Object sender)
+        {
+            ToolStripButton btn = (ToolStripButton)sender;
+            tsbPencil.Checked = false;
+            tsbPaint.Checked = false;
+            tsbLine.Checked = false;
+            tsbSquare.Checked = false;
+            tsbCircle.Checked = false;
+
+            btn.Checked = true;
+        }
+
+        private void tsmiDeleteImage_Click(object sender, EventArgs e)
+        {
+            Form child = this.ActiveMdiChild;
+            ((PaintForm)child).DeleteAll();
         }
     }
 }
