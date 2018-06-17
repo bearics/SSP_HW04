@@ -28,7 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.pnlPaint = new System.Windows.Forms.Panel();
+            this.sfd = new System.Windows.Forms.SaveFileDialog();
+            this.pnlPaint = new Paint.DoubleBufferPanel();
             this.SuspendLayout();
             // 
             // pnlPaint
@@ -51,6 +52,7 @@
             this.Controls.Add(this.pnlPaint);
             this.Name = "PaintForm";
             this.Text = "PaintForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PaintForm_FormClosing);
             this.Load += new System.EventHandler(this.PaintForm_Load);
             this.ResumeLayout(false);
 
@@ -58,6 +60,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Panel pnlPaint;
+        private DoubleBufferPanel pnlPaint;
+        private System.Windows.Forms.SaveFileDialog sfd;
     }
 }

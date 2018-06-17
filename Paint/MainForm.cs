@@ -14,17 +14,13 @@ namespace Paint
 {
     public partial class MainForm : Form
     {
-        List<PaintForm> mChild = new List<PaintForm>();
+        public List<PaintForm> mChild = new List<PaintForm>();
         public Tools mTools = new Tools();
 
         public MainForm()
         {
             InitializeComponent();
-            this.DoubleBuffered = true;
 
-            this.SetStyle(ControlStyles.DoubleBuffer, true);
-            this.SetStyle(ControlStyles.UserPaint, true);
-            this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             this.UpdateStyles();
         }
 
@@ -37,7 +33,7 @@ namespace Paint
 
         private void tsmiOpen_Click(object sender, EventArgs e)
         {
-            ofdOpenImage.Filter = "이미지 파일 (*.jpg)|*.jpg|이미지 파일(*.jpeg)|*.jpeg";
+            ofdOpenImage.Filter = "이미지 파일 (*.jpg)|*.jpg|이미지 파일(*.jpeg)|*.jpeg|비트맵 파일(*.bmp)|*bmp|인터넷 파일(*.png)|*png";
 
             if (ofdOpenImage.ShowDialog() == DialogResult.OK)
             {
@@ -62,25 +58,27 @@ namespace Paint
             {
                 c.Text = Path.GetFileName(imgPath);
                 c.mImg = Image.FromFile(imgPath);
+                c.WindowState = FormWindowState.Normal;
                 c.Width = c.mImg.Width + 16;
                 c.Height = c.mImg.Height + 39;
             }
             c.Show();
 
+            tsmiDeleteImage.Enabled = true;
             tsmiSave.Enabled = true;
+        }
+
+        public void Disable()
+        {
+            tsmiSave.Enabled = false;
+            tsmiDeleteImage.Enabled = false;
+
         }
 
         private void tsmiSave_Click(object sender, EventArgs e)
         {
-            sfdSaveImage.Filter = "Images|*.jpeg;*jpg";
-            
-            if(sfdSaveImage.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                //string 
-            }
 
-            Form child = this.ActiveMdiChild;
-                        
+            Form child = this.ActiveMdiChild;                        
             ((PaintForm)child).SaveImg();
             
         }

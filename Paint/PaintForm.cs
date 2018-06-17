@@ -11,6 +11,7 @@ using System.IO;
 
 namespace Paint
 {
+
     public partial class PaintForm : Form
     {
         public string mImgPath = null;
@@ -32,6 +33,8 @@ namespace Paint
         {
             
         }
+
+        
 
         private void pnlPaint_Paint(object sender, PaintEventArgs e)
         {
@@ -66,19 +69,54 @@ namespace Paint
         public void SaveImg()
         {
             Bitmap bmp = new Bitmap(pnlPaint.Width, pnlPaint.Height);
+            System.Drawing.Imaging.ImageFormat fmt=null;
             pnlPaint.DrawToBitmap(bmp, new Rectangle(0, 0, pnlPaint.Width, pnlPaint.Height));
+            sfd.Filter = "이미지 파일 (*.jpg)|*.jpg|이미지 파일(*.jpeg)|*.jpeg|비트맵 파일(*.bmp)|*bmp|인터넷 파일(*.png)|*png"; ;
+            sfd.AddExtension = true;
 
             if (mImg != null)
                 mImg.Dispose();
-
             try
             {
-                if(File.Exists(mImgPath))
+                if (sfd.ShowDialog() == DialogResult.OK)
                 {
-                    File.Delete(mImgPath);
+                    switch(sfd.FilterIndex)
+                    {
+                        case 1:
+                        case 2:
+                            fmt = System.Drawing.Imaging.ImageFormat.Jpeg;
+                            if (!sfd.FileName.Contains("."))
+                                sfd.FileName += ".jpeg";
+                            break;
+                        case 3:
+                            fmt = System.Drawing.Imaging.ImageFormat.Bmp;
+                            if (!sfd.FileName.Contains("."))
+                                sfd.FileName += ".bmp";
+                            break;
+                        case 4:
+                            fmt = System.Drawing.Imaging.ImageFormat.Png;
+                            if (!sfd.FileName.Contains("."))
+                                sfd.FileName += ".png";
+                            break;
+                        default:
+                            MessageBox.Show("Cannot save in that extensions");
+                            break;
+                    }
+
+
+                    if (File.Exists(mImgPath) && mImgPath == sfd.FileName)
+                    {
+                        File.Delete(mImgPath);
+                    }
+
+                    if( fmt != null)
+                    {
+                        bmp.Save(sfd.FileName, fmt);
+                        mImg = Image.FromFile(sfd.FileName);
+                        mImgPath = sfd.FileName;
+                        this.Text = Path.GetFileName(sfd.FileName);
+                    }
                 }
-                System.Drawing.Imaging.ImageFormat fmt = System.Drawing.Imaging.ImageFormat.Jpeg;
-                bmp.Save(mImgPath, fmt);
             }
             finally
             {
@@ -87,10 +125,47 @@ namespace Paint
 
         }
 
+        public void SaveImg1()
+        {
+            Bitmap bmp = new Bitmap(pnlPaint.Width, pnlPaint.Height);
+            System.Drawing.Imaging.ImageFormat fmt = null;
+            pnlPaint.DrawToBitmap(bmp, new Rectangle(0, 0, pnlPaint.Width, pnlPaint.Height));
+            sfd.Filter = "이미지 파일 (*.jpg)|*.jpg|이미지 파일(*.jpeg)|*.jpeg|비트맵 파일(*.bmp)|*bmp|인터넷 파일(*.png)|*png"; ;
+            sfd.AddExtension = true;
+            if (mImg != null)
+                mImg.Dispose();
+            try
+            {
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    fmt = System.Drawing.Imaging.ImageFormat.Jpeg;
+                    if (!sfd.FileName.Contains("."))
+                        sfd.FileName += ".jpeg";
+                    if (File.Exists(mImgPath) && mImgPath == sfd.FileName)
+                    {
+                        File.Delete(mImgPath);
+                    }
+                    if (fmt != null)
+                    {
+                        bmp.Save(sfd.FileName, fmt);
+                        mImg = Image.FromFile(sfd.FileName);
+                        mImgPath = sfd.FileName;
+                        this.Text = Path.GetFileName(sfd.FileName);
+                    }
+                }
+            }
+            finally
+            {
+                bmp.Dispose();
+            }
+        }
+
         public void DeleteAll()
         {
             mImg = null;
             mDrawn.Clear();
+            pnlPaint.Invalidate(true);
+            pnlPaint.Update();
         }
 
         private void pnlPaint_MouseDown(object sender, MouseEventArgs e)
@@ -160,5 +235,20 @@ namespace Paint
             mIsMouse = false;
         }
 
+        private void PaintForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            List<PaintForm> childs = ((MainForm)MdiParent).mChild;
+            foreach (PaintForm child in childs)
+            {
+                if(child == this)
+                {
+                    childs.Remove(this);
+                    break;
+                }
+            }
+            if (childs.Count == 0)
+                ((MainForm)MdiParent).Disable();
+
+        }
     }
 }
